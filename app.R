@@ -5,6 +5,7 @@ library(ECharts2Shiny)
 library(ggplot2)
 library(plotly)
 library(dplyr)
+library(colourpicker)
 
 # Mysql database connection
 mysqlconnection = dbConnect(RMySQL::MySQL(),
@@ -40,14 +41,13 @@ ui <- fluidPage(theme = shinytheme("cerulean"),
                                                  loadEChartsLibrary(),
                                                  tags$div(id="test", style="width:80%;height:800px"),
                                                  deliverChart(div_id = "test"))),
-                                      tabPanel("Most frequently purchased models",plotlyOutput("buble")),
+                                      tabPanel("Most frequently purchased models",div(class="col",colourInput("col","Select points color:","red")),plotlyOutput("buble")),
                                       tabPanel("Discrepancy of units sold",plotlyOutput("normal"))),
                            tabPanel("Summary",verbatimTextOutput("summary"),htmlOutput("summary2"),icon=icon("clipboard")),
                            tags$style(type = 'text/css', '.navbar {
-                           font-family: Arial;
-                           font-size: 20px;}', '.dropdown-menu {
-                           font-family: Arial;
-                           font-size: 22px;}')
+                           font-family: Arial; font-size: 20px;}', '.dropdown-menu {
+                           font-family: Arial; font-size: 22px;}', '.col {
+                           font-family: Arial; font-size: 18px;}')
                            ))
 
 
@@ -70,7 +70,7 @@ server <- function(input, output, session) {
 
   output$buble <- renderPlotly({
     q <- ggplot(dfall, aes(x=Model, y=Brand, size=`Amount sold`),guide=FALSE)+ggtitle("Most purchased car models in 2018 in Poland")+
-      geom_point(colour="white", fill="red", shape=21)+ scale_size_area(max_size = 15)+
+      geom_point(colour="white", fill=input$col, shape=21)+ scale_size_area(max_size = 15)+
       theme_bw() + theme(axis.text.x = element_text(angle = 90),text = element_text(size=15)) 
     ggplotly(q, width = 1200, height = 800)
   })
